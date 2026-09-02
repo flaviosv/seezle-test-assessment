@@ -1,3 +1,6 @@
+----------------------------------------------------------------------
+
+```text
 /build-feature
 
 Objective
@@ -131,9 +134,11 @@ Session criterias:
 - This is supposede to be a single-shot prompt to build the entire feature, consider the TASK iD SEZ-1, Description: Calculator MVP, branch main and Human Review = no
 - The grilling session can be detailed to detect gaps and improvements
 - design / design-sync skills are allowed to make sure we have a good UI and keep the design system updated
+```
 
---
+----------------------------------------------------------------------
 
+```text
 1. the ui-reference.png file is a reference for the color schema you can use, as you identified
 2. It's the percentage, as a real calculator
 3. What operator do yoiu suggest for sqrt?
@@ -145,13 +150,17 @@ Session criterias:
 --
 
 Onde detail to add to the scope of this task, addd to README.md that i use SDD with grilling notes and specs under each spec folder
+```
 
---
+----------------------------------------------------------------------
 
+```text
 About the design, the + must be in the right of the = button
+```
 
---
+----------------------------------------------------------------------
 
+```text
 I've noticed you are doing a great job adding the prompts to the docs/PROMPTS.md, but add delimitters in between the prompts and no need for numbered list
 
 i.e
@@ -165,6 +174,28 @@ B
 
 Other prompts lala
 
---
+-- 
 
 Other prompots asdadsd
+```
+
+----------------------------------------------------------------------
+
+```text
+Add extra delomitters, something bigger like
+
+  ----------------------------------------------------------------------
+
+  SO it's clear it's a new prompt
+
+You can also use coden snippet markdown format to delimiter the prompts
+```
+
+----------------------------------------------------------------------
+
+```text
+thecode snippet i'm talking about is
+
+​```text
+​```
+```
