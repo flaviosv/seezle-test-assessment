@@ -24,7 +24,7 @@ func NewHandler(uc *UseCase) *Handler {
 type CalculateRequest struct {
 	// Operation intentionally has no `binding:"required"` tag: an empty or
 	// missing value decodes to "" and is rejected by the parser's own
-	// ErrEmptyExpression (T6), which is this service's single source of
+	// ErrEmptyExpression, which is this service's single source of
 	// truth for grammar validity — not a separate bind-level rule.
 	Operation string `json:"operation" example:"2+2"`
 }
@@ -48,9 +48,12 @@ type CalculateResponse struct {
 //	@Failure		400		{object}	response.ErrorResponse
 //	@Router			/v1/calculate [post]
 func (h *Handler) Calculate(c *gin.Context) {
+	const maxBodySize = 1 << 20
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxBodySize)
+
 	var req CalculateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, response.ErrorResponse{Error: err.Error()})
+		c.JSON(http.StatusBadRequest, response.ErrorResponse{Error: "operations: request body is not valid JSON"})
 		return
 	}
 
