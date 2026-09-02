@@ -56,6 +56,7 @@ func main() {
 	srv := &http.Server{
 		Addr:              ":" + cfg.APIPort,
 		Handler:           app,
+		MaxHeaderBytes:    1 << 20,
 		ReadHeaderTimeout: readHeaderTimeout,
 		ReadTimeout:       readTimeout,
 		WriteTimeout:      writeTimeout,
