@@ -379,9 +379,44 @@ describe('useCalculator', () => {
       expect(result.current.state).toEqual(before)
     })
 
-    it('Escape is captured but has no expression-level effect (FE-04)', () => {
+    it('Escape clears the expression, same as clicking AC', () => {
       const { result } = renderHook(() => useCalculator())
       pressKey('2')
+      pressKey('+')
+      pressKey('3')
+      pressKey('Escape')
+      expect(result.current.state).toEqual({
+        status: 'composing',
+        expression: '',
+        echoedOperation: '',
+        displayValue: '',
+      })
+    })
+
+    it('Escape recovers from error-shown, same as clicking AC', async () => {
+      mockedCalculate.mockRejectedValue(new Error('operations: division by zero'))
+      const { result } = renderHook(() => useCalculator())
+      pressKey('1')
+      pressKey('/')
+      pressKey('0')
+      await act(async () => {
+        await result.current.submit()
+      })
+      expect(result.current.state.status).toBe('error-shown')
+
+      pressKey('Escape')
+      expect(result.current.state).toEqual({
+        status: 'composing',
+        expression: '',
+        echoedOperation: '',
+        displayValue: '',
+      })
+    })
+
+    it('Escape does not clear the expression while the help modal is open', () => {
+      const { result } = renderHook(() => useCalculator(true))
+      pressKey('2')
+      pressKey('+')
       const before = result.current.state
       pressKey('Escape')
       expect(result.current.state).toEqual(before)

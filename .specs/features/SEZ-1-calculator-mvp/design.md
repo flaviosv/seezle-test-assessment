@@ -328,13 +328,15 @@ stateDiagram-v2
 | `±` | toggle sign on current operand | ignored | ignored |
 | backspace | delete last char | ignored | ignored |
 | `=`/Enter | `calculate()` if non-empty | no-op (nothing to submit) | ignored |
-| AC | reset | reset | reset (only way out) |
+| AC / Escape | reset | reset | reset (only way out) |
 
 **Keyboard mapping** (FE-02/03/04): a single `window.keydown` listener (registered once in
 `useCalculator`, not per-button) filters to `0-9 . + - * / ^ \ % Enter Backspace Escape` and dispatches
 the same actions the buttons use — no separate code path, so button and keyboard behavior can never
-drift. `Escape` closes the help modal if open; otherwise it is captured (whitelisted per FE-04) but
-has no expression-level effect (Escape isn't AC — only "AC" clears, per Assumptions). `-` on the
+drift. `Escape` closes the help modal if open; otherwise it resets the same way "AC" does (revised
+post-launch: an initial Design-phase default of "Escape is whitelisted but inert" left error-shown
+recoverable only by mouse, which UAT flagged as a real gap — `isHelpOpen` is threaded into
+`useCalculator` so Escape can't fire AC underneath an open modal). `-` on the
 keyboard always appends a literal `-` character (same as clicking a `-` button would, if one
 existed) — **there is no keyboard binding for `±`**, per grilling ("no new typed keyboard shortcut is
 introduced").

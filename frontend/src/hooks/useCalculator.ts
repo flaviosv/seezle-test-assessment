@@ -128,7 +128,7 @@ function reducer(state: CalculatorState, action: Action): CalculatorState {
   }
 }
 
-export function useCalculator() {
+export function useCalculator(isHelpOpen = false) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
   const inputChar = useCallback((char: string) => dispatch({ type: 'INPUT_CHAR', char }), [])
@@ -182,13 +182,18 @@ export function useCalculator() {
         backspace()
         return
       }
-      // Escape is whitelisted (FE-04) but has no expression-level effect here
-      // — only "AC" clears. HelpModal owns closing itself on Escape.
+      if (key === 'Escape') {
+        event.preventDefault()
+        // While the help modal is open, Escape closes it (HelpModal owns
+        // that); the calculator itself must not also clear underneath it.
+        if (!isHelpOpen) clear()
+        return
+      }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [inputChar, inputDecimal, submit, backspace])
+  }, [inputChar, inputDecimal, submit, backspace, clear, isHelpOpen])
 
   return { state, inputChar, inputDecimal, toggleSign, backspace, clear, submit }
 }

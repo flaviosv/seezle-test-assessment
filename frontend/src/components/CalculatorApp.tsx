@@ -5,10 +5,12 @@ import { HelpButton } from './HelpButton'
 
 interface CalculatorAppProps {
   onHelpClick: () => void
+  isHelpOpen?: boolean
 }
 
-export function CalculatorApp({ onHelpClick }: CalculatorAppProps) {
-  const { state, inputChar, inputDecimal, toggleSign, backspace, clear, submit } = useCalculator()
+export function CalculatorApp({ onHelpClick, isHelpOpen = false }: CalculatorAppProps) {
+  const { state, inputChar, inputDecimal, toggleSign, backspace, clear, submit } =
+    useCalculator(isHelpOpen)
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[var(--color-bg)] p-4">

@@ -7,7 +7,7 @@ function App() {
 
   return (
     <>
-      <CalculatorApp onHelpClick={() => setHelpOpen(true)} />
+      <CalculatorApp onHelpClick={() => setHelpOpen(true)} isHelpOpen={isHelpOpen} />
       <HelpModal isOpen={isHelpOpen} onClose={() => setHelpOpen(false)} />
     </>
   )

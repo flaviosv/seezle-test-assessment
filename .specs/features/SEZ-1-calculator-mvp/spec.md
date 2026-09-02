@@ -154,10 +154,10 @@ or Enter, so I can do everyday left-to-right arithmetic without worrying about o
 4. WHEN the user clicks "=" or presses Enter THEN the system SHALL make exactly one
    `POST /v1/calculate` call with the accumulated expression as `operation`, and SHALL render the
    response (FE-05).
-5. WHEN the user clicks or presses "AC" THEN the system SHALL clear all state — the expression being
-   composed, the echoed operation, and any displayed result/error — back to the initial empty state
-   (FE-06); the "AC" and "=" controls SHALL both be styled red and visually distinct from every other
-   button (FE-07).
+5. WHEN the user clicks "AC" or presses the Escape key (while the help modal is closed) THEN the system
+   SHALL clear all state — the expression being composed, the echoed operation, and any displayed
+   result/error — back to the initial empty state (FE-06); the "AC" and "=" controls SHALL both be
+   styled red and visually distinct from every other button (FE-07).
 6. WHEN the backend returns `200` THEN the system SHALL replace all content in the display's result area
    with the returned `result`, and SHALL show the returned `operation` above it in smaller font (FE-08).
 7. WHEN the backend returns `400` (format error or math error) THEN the system SHALL show "Error" in the
