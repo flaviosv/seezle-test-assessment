@@ -45,9 +45,17 @@ Per-file breakdown for the components exercised only through `CalculatorApp.test
 ## Gap Analysis (by design, not oversight)
 
 - **No end-to-end test suite** — explicitly excluded by spec.md and the Test Coverage Matrix (OPS-10).
-- **Visual fidelity (FE-15/16/17: palette, macOS-reference layout, responsive breakpoints)** —
-  verified manually against the two reference images, not by automated visual-regression assertions;
-  this is out of scope per design.md's Test Strategy.
+- **Visual fidelity (FE-15/16: palette, macOS-reference layout)** — verified manually against the
+  two reference images, not by automated visual-regression assertions; this is out of scope per
+  design.md's Test Strategy.
+- **FE-17 (responsive, no horizontal scroll at phone width)** — `CalculatorApp.test.tsx` only
+  asserts the presence of the `w-full`/`max-w-sm` Tailwind classes (a structural proxy). This was
+  additionally confirmed by rendering the live app (`npm run dev`) in a real browser, constrained to
+  320px/375px/390px viewport widths via a same-origin iframe, and reading
+  `document.documentElement.scrollWidth` vs. `clientWidth` at each width: equal at all three (no
+  horizontal overflow). This is the manual QA design.md's Test Strategy calls for, not an automated
+  regression test — a future viewport change could still reintroduce overflow undetected by the
+  suite.
 - **`HelpModal`'s backdrop-click-to-close and dialog-click-does-not-close paths** are covered here
   (`HelpModal.test.tsx`), going beyond the Test Coverage Matrix's stated minimum ("opens on click,
   closes on close-control click and on Escape") since the component already implements them.
