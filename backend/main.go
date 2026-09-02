@@ -49,7 +49,7 @@ func main() {
 	docs.SwaggerInfo.BasePath = "/v1"
 
 	uc := operations.NewUseCase()
-	routes.Routes(app, app.Group("/v1"), uc, cfg)
+	routes.Routes(app, app.Group("/v1"), uc)
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.APIPort,

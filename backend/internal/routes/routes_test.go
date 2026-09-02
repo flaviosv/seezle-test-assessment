@@ -12,7 +12,6 @@ import (
 
 	"github.com/flaviosv/seezle-test-assessment/internal/middleware"
 	"github.com/flaviosv/seezle-test-assessment/internal/operations"
-	"github.com/flaviosv/seezle-test-assessment/internal/shared/config"
 	"github.com/flaviosv/seezle-test-assessment/internal/shared/logger"
 )
 
@@ -24,7 +23,6 @@ func newTestRouter(t *testing.T) *gin.Engine {
 	gin.SetMode(gin.TestMode)
 
 	log := logger.Initialize("error")
-	cfg := &config.Config{APIPort: "8090", AppEnv: "test", GinMode: gin.TestMode, LogLevel: "error"}
 
 	app := gin.New()
 	app.Use(gin.Recovery())
@@ -34,7 +32,7 @@ func newTestRouter(t *testing.T) *gin.Engine {
 	app.Use(middleware.RequestContext(log))
 
 	uc := operations.NewUseCase()
-	Routes(app, app.Group("/v1"), uc, cfg)
+	Routes(app, app.Group("/v1"), uc)
 
 	return app
 }

@@ -9,14 +9,13 @@ import (
 
 	seezledocs "github.com/flaviosv/seezle-test-assessment/docs"
 	"github.com/flaviosv/seezle-test-assessment/internal/operations"
-	"github.com/flaviosv/seezle-test-assessment/internal/shared/config"
 )
 
 // Routes registers the operations slice's route on the v1 group (AD-001:
 // never on the bare engine) and the Swagger/ReDoc documentation endpoints on
 // the bare engine (mirroring dinherim's wiring) — neither carries any auth
 // middleware, since API-06 means there is nothing to gate.
-func Routes(app *gin.Engine, v1 *gin.RouterGroup, uc *operations.UseCase, cfg *config.Config) {
+func Routes(app *gin.Engine, v1 *gin.RouterGroup, uc *operations.UseCase) {
 	h := operations.NewHandler(uc)
 	v1.POST("/calculate", h.Calculate)
 
