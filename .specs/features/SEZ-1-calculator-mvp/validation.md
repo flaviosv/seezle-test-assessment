@@ -287,3 +287,54 @@ All 12 edge cases from spec.md are covered by tests.
 3. FE-17's specific "resize to phone width, no horizontal scroll" Independent Test scenario has no automated or manual confirmation — Fix 3
 
 **Next steps**: Route Fixes 1–3 to an implementer as fix tasks, then re-dispatch the Verifier (fix→re-verify iteration 1 of the 3-iteration bound). All three fixes are documentation/coverage additions — none require touching the calculation engine, HTTP layer, or frontend state machine, which are all sound.
+
+---
+
+## Iteration 2 Re-Verification
+
+**Date**: 2026-09-02
+**Diff range this iteration**: `5af1e26..HEAD` (fix-round commits: `2f53bd1`, `ea617a2`, `8f7eee2`, `4d9fd69`, `f1a3fa3`)
+**Verifier**: independent sub-agent, fresh dispatch (does not trust iteration-1 claims; re-derived all evidence directly)
+
+### Gap-by-gap re-check
+
+1. **OPS-02 — `commits.md` missing → CLOSED.** `.specs/features/SEZ-1-calculator-mvp/commits.md` exists (27-row table, `05f0930..5af1e26`). Cross-checked every hash and subject against `git log --oneline --reverse 05f0930..5af1e26` — exact match, real not fabricated. `README.md:91` now lists all 6 SDD artifacts including `commits.md`. OPS-02 and the OPS-01 documentation-completeness half tied to it are now satisfied.
+
+2. **OPS-08 — `docs/PROMPTS.md` missing → DEFERRED, not a gap for this run.** Per this task's explicit scope instruction, `docs/PROMPTS.md` is the responsibility of a separate orchestrating process outside this Execute run and is intentionally not created here. `README.md:94`'s link to `docs/PROMPTS.md` is still dead (file confirmed absent via `find`), but this is the same deferred item, not a new defect — it will resolve once the external process writes the file. **Not counted against the overall verdict.**
+
+3. **FE-17 — resize/no-horizontal-scroll coverage gap → CLOSED, evidence independently reproduced.** `docs/codebase/COVERAGE.md`'s Gap Analysis (lines 51-58) claims manual QA at 320/375/390px viewport widths found `scrollWidth === clientWidth` (no overflow) via a live-rendered app. This Verifier did not take the doc's word for it: started `npm run dev -- --port 5199` in the background, drove a headless Chromium via Playwright (cached npx install, `~/.npm/_npx/e41f203b7505f1fb`) at exactly those three viewport widths, and read `document.documentElement.scrollWidth`/`clientWidth` directly — **result: `{320: 320/320, 375: 375/375, 390: 390/390}`, all equal, zero overflow at every width, independently reproducing the doc's claim exactly.** Cross-checked against the CSS: `CalculatorApp.tsx` uses only `w-full max-w-sm` + relative padding (`p-4`/`sm:p-6`), `ButtonGrid.tsx` uses `grid grid-cols-4 gap-2` with `h-14` (fixed height only, not width) — no fixed pixel widths anywhere that could contradict the no-overflow claim. Dev server killed after the check (`pkill`, confirmed port down).
+
+### Button-grid layout regression check (FE-06/07/15, out-of-band user-directed change)
+
+`git log --oneline -p -- frontend/src/components/ButtonGrid.tsx` since `5af1e26` shows exactly two commits (`8f7eee2`, `4d9fd69`), both repositioning only the `equals`/`spacer`/`spacer-2`/`add` array entries and the `isSpacer` key-prefix check — **no handler, prop, or class logic changed**; `onClick: onSubmit` for `=` and `onClick: () => onInputChar('+')` for `+` are byte-identical to before. Current layout verified directly: 24 array entries, 22 real buttons (`ac, backspace, percent, sqrt, 7,8,9,pow, 4,5,6,div, 1,2,3,mul, sign,0,dot,sub, equals, add`) + 2 `aria-hidden` spacers, no duplicate keys, all 7 operators present and clickable (`+ - * / ^ \ %`), `ac`/`equals` both still use `DANGER_CLASS`. No spec requirement violated; FE-06/07/15 unaffected.
+
+### Gate Check (re-run, full)
+
+- **Backend**: `go build ./...` clean, `go vet ./...` clean, `go test ./...` — **89 passed, 0 failed**
+- **Frontend**: `npm run build` clean, `npm run typecheck` clean, `npm run lint` (oxlint, exit 0) clean, `npm run test -- --run` — **4 test files, 83 passed, 0 failed**
+- **Combined**: **172 passed, 0 failed** — exact match to the expected/prior count, no regression, no deviation
+
+### Discrimination Sensor (1 mutation, fix-round change)
+
+| # | File:line | Description | Killed? |
+| - | --------- | ------------ | ------- |
+| 1 | `frontend/src/components/ButtonGrid.tsx:64` | Changed the `=` button's `onClick: onSubmit` → `onClick: () => {}` (no-op), targeting the fix-round layout change | ✅ Killed — `npx vitest run src/components/CalculatorApp.test.tsx` → 3 of 15 tests failed (including the `=`-fires-a-calculation assertions); mutation reverted via `git checkout -- frontend/src/components/ButtonGrid.tsx`, `git status --porcelain` confirmed empty immediately after |
+
+**Sensor depth**: lightweight (1 mutation, proportional to this iteration's fix-round scope)
+**Result**: 1/1 killed — ✅ PASS
+
+### Interactive UAT
+
+Skipped — no interactive user in this session (same as iteration 1).
+
+### Lessons
+
+No new grounded signal this iteration: all 3 iteration-1 gaps closed or correctly deferred, gate is fully green, sensor mutation killed on first try, no new spec-precision gaps, no new `// SPEC_DEVIATION` markers introduced. `scripts/lessons.py` does not exist in this repo (checked: no `scripts/` directory) — no lesson recorded, consistent with the "clean pass → no lesson" rule.
+
+### Iteration 2 Verdict
+
+**Overall**: ✅ **PASS**
+
+All 3 gaps from iteration 1 are resolved: OPS-02 closed with verified evidence, FE-17 closed with independently-reproduced live evidence, OPS-08 correctly deferred to the separate downstream process per this run's explicit scope and therefore does not count against the verdict. The button-grid layout changes made at the user's direction are confirmed cosmetic-only with no behavioral or spec regression. Gate: 172/172 passed. Sensor: 1/1 killed. Working tree confirmed clean after the sensor cycle.
+
+**Remaining known item (not a gap)**: `docs/PROMPTS.md` (OPS-08) and its one dead link in `README.md:94` — explicitly out of scope for this Execute run, to be resolved by the separate orchestrating process.
