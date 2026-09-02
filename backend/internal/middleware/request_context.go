@@ -7,6 +7,8 @@ import (
 	"github.com/google/uuid"
 )
 
+// Gin context keys set by RequestContext, used to retrieve the per-request
+// ID and its scoped logger downstream (e.g. in a handler).
 const (
 	RequestIDKey = "request_id"
 	LoggerKey    = "logger"

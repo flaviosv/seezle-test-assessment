@@ -16,6 +16,7 @@ type Handler struct {
 	uc *UseCase
 }
 
+// NewHandler constructs a Handler that delegates to uc.
 func NewHandler(uc *UseCase) *Handler {
 	return &Handler{uc: uc}
 }

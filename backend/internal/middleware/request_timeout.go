@@ -8,6 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// RequestTimeout aborts the request with a 504 if it has not completed
+// within d.
 func RequestTimeout(d time.Duration) gin.HandlerFunc {
 	return timeout.New(
 		timeout.WithTimeout(d),

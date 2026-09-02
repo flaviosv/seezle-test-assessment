@@ -13,6 +13,7 @@ const resultSignificantDigits = 10
 // fields — since this service has no persistence.
 type UseCase struct{}
 
+// NewUseCase constructs a stateless UseCase.
 func NewUseCase() *UseCase {
 	return &UseCase{}
 }
