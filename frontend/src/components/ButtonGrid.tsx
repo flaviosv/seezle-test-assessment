@@ -61,15 +61,16 @@ export function ButtonGrid({
     { key: 'dot', label: '.', onClick: onInputDecimal, className: DIGIT_CLASS },
     { key: 'sub', label: '-', onClick: () => onInputChar('-'), className: OPERATOR_CLASS },
 
+    { key: 'equals', label: '=', onClick: onSubmit, className: DANGER_CLASS },
     { key: 'spacer', label: '', onClick: () => {}, className: 'invisible' },
     { key: 'add', label: '+', onClick: () => onInputChar('+'), className: OPERATOR_CLASS },
-    { key: 'equals', label: '=', onClick: onSubmit, className: `${DANGER_CLASS} col-span-2` },
+    { key: 'spacer-2', label: '', onClick: () => {}, className: 'invisible' },
   ]
 
   return (
     <div className="grid grid-cols-4 gap-2">
       {buttons.map((button) => {
-        const isSpacer = button.key === 'spacer'
+        const isSpacer = button.key.startsWith('spacer')
         return (
           <button
             key={button.key}
