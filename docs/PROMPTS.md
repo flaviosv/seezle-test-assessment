@@ -1,4 +1,4 @@
-1. /build-feature
+/build-feature
 
 Objective
 
@@ -132,7 +132,9 @@ Session criterias:
 - The grilling session can be detailed to detect gaps and improvements
 - design / design-sync skills are allowed to make sure we have a good UI and keep the design system updated
 
-2. 1. the ui-reference.png file is a reference for the color schema you can use, as you identified
+--
+
+1. the ui-reference.png file is a reference for the color schema you can use, as you identified
 2. It's the percentage, as a real calculator
 3. What operator do yoiu suggest for sqrt?
 4. Yes, there is negative numbers, add to the scope
@@ -144,4 +146,25 @@ Session criterias:
 
 Onde detail to add to the scope of this task, addd to README.md that i use SDD with grilling notes and specs under each spec folder
 
-3. About the design, the + must be in the right of the = button
+--
+
+About the design, the + must be in the right of the = button
+
+--
+
+I've noticed you are doing a great job adding the prompts to the docs/PROMPTS.md, but add delimitters in between the prompts and no need for numbered list
+
+i.e
+
+Prompt allalala
+
+A
+B
+
+--
+
+Other prompts lala
+
+--
+
+Other prompots asdadsd
