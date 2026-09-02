@@ -1,0 +1,12 @@
+/* Design tokens (design.md's Design Tokens section). Starting proposal —
+   exact final values owned by the /design skill's Claude Design system
+   (seezle-technical-assesment, OPS-11). */
+:root {
+  --color-bg: #0b0e14;
+  --color-surface: #1a1f2e;
+  --color-surface-raised: #232a3d;
+  --color-accent: #3b82f6;
+  --color-danger: #ef4444;
+  --color-text-primary: #f5f7fa;
+  --color-text-secondary: #8b93a7;
+}

@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "promote_threshold": 2,
+  "window_days": 45,
+  "quarantine_threshold": 2,
+  "next_id": 6,
+  "lessons": [
+    {
+      "id": "L-001",
+      "key": "ac_gap::when a task s done when requires creating a specific documentation file verify the file exists on disk before marking the task complete a commit message deferring the content is not a substitute for a follow up commit that actually creates it",
+      "text": "When a task's Done-when requires creating a specific documentation file, verify the file exists on disk before marking the task complete — a commit message deferring the content is not a substitute for a follow-up commit that actually creates it.",
+      "signal": "ac_gap",
+      "scope": "docs",
+      "status": "candidate",
+      "features": [
+        "SEZ-1-calculator-mvp"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "OPS-08: docs/PROMPTS.md (docs)"
+      ],
+      "created": "2026-09-02T19:49:47Z",
+      "last_seen": "2026-09-02T19:49:47Z"
+    },
+    {
+      "id": "L-002",
+      "key": "ac_gap::when spec md names a specific deliverable file confirm during tasks planning that some task explicitly owns creating it a file named only in a readme content done when bullet with no task assigned to generate it silently falls through execute",
+      "text": "When spec.md names a specific deliverable file, confirm during Tasks planning that some task explicitly owns creating it — a file named only in a README-content Done-when bullet, with no task assigned to generate it, silently falls through Execute.",
+      "signal": "ac_gap",
+      "scope": "tasks-planning",
+      "status": "candidate",
+      "features": [
+        "SEZ-1-calculator-mvp"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "OPS-02: commits.md (tasks-planning)"
+      ],
+      "created": "2026-09-02T19:49:52Z",
+      "last_seen": "2026-09-02T19:49:52Z"
+    },
+    {
+      "id": "L-003",
+      "key": "spec_precision_gap::flag visual fidelity acceptance criteria color palette or layout matching a reference image as requiring interactive uat during spec writing since no code level assertion can verify a match to an image",
+      "text": "Flag visual-fidelity acceptance criteria (color palette or layout matching a reference image) as requiring interactive UAT during spec writing, since no code-level assertion can verify a match to an image.",
+      "signal": "spec_precision_gap",
+      "scope": "frontend",
+      "status": "candidate",
+      "features": [
+        "SEZ-1-calculator-mvp"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FE-15/FE-16: palette and layout match to reference images (frontend)"
+      ],
+      "created": "2026-09-02T19:49:57Z",
+      "last_seen": "2026-09-02T19:49:57Z"
+    },
+    {
+      "id": "L-004",
+      "key": "ac_gap::when a spec s independent test names a specific verification scenario write a test for that exact scenario rather than a weaker proxy assertion e g checking static css class names and then marking the criterion done",
+      "text": "When a spec's Independent Test names a specific verification scenario, write a test for that exact scenario rather than a weaker proxy assertion (e.g. checking static CSS class names) and then marking the criterion done.",
+      "signal": "ac_gap",
+      "scope": "frontend",
+      "status": "candidate",
+      "features": [
+        "SEZ-1-calculator-mvp"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FE-17: viewport-resize/no-horizontal-scroll Independent Test scenario (frontend)"
+      ],
+      "created": "2026-09-02T19:50:02Z",
+      "last_seen": "2026-09-02T19:50:02Z"
+    },
+    {
+      "id": "L-005",
+      "key": "spec_deviation::when a left to right scanning helper tracks an expect start boundary add an explicit test for the case where the scanned token is the very last character e g a trailing operator that zero length remainder boundary is where off by one bugs hide",
+      "text": "When a left-to-right scanning helper tracks an 'expect start' boundary, add an explicit test for the case where the scanned token is the very last character (e.g. a trailing operator) — that zero-length-remainder boundary is where off-by-one bugs hide.",
+      "signal": "spec_deviation",
+      "scope": "frontend",
+      "status": "candidate",
+      "features": [
+        "SEZ-1-calculator-mvp"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "frontend/src/hooks/useCalculator.ts:44-52 (currentOperandStart) (frontend)"
+      ],
+      "created": "2026-09-02T19:50:07Z",
+      "last_seen": "2026-09-02T19:50:07Z"
+    }
+  ]
+}
