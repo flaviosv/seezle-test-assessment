@@ -3,11 +3,15 @@ package operations
 import (
 	"bytes"
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/flaviosv/seezle-test-assessment/internal/middleware"
 )
 
 // newTestHandler builds a Handler wired to a real UseCase (no mocks, per
@@ -23,6 +27,11 @@ func newTestRouter(t *testing.T, h *Handler) *gin.Engine {
 	t.Helper()
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
+	r.Use(gin.Recovery())
+	r.Use(middleware.SecurityHeaders())
+	r.Use(middleware.CORS())
+	r.Use(middleware.RequestTimeout(20 * time.Second))
+	r.Use(middleware.RequestContext(slog.New(slog.NewTextHandler(httptest.NewRecorder(), nil))))
 	r.POST("/v1/calculate", h.Calculate)
 	return r
 }

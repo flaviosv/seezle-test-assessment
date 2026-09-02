@@ -2,10 +2,12 @@ package operations
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/flaviosv/seezle-test-assessment/internal/middleware"
 	"github.com/flaviosv/seezle-test-assessment/internal/shared/http/response"
 )
 
@@ -54,6 +56,8 @@ func (h *Handler) Calculate(c *gin.Context) {
 
 	result, err := h.uc.Calculate(req.Operation)
 	if err != nil {
+		logger := c.MustGet(middleware.LoggerKey).(*slog.Logger)
+		logger.Warn("calculation failed", "operation", req.Operation, "error", err)
 		c.JSON(http.StatusBadRequest, response.ErrorResponse{Error: err.Error()})
 		return
 	}
