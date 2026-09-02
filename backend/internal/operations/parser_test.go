@@ -42,6 +42,15 @@ func TestEvaluate(t *testing.T) {
 		// CALC-06: double sign rejected.
 		{name: "double consecutive sign rejected", input: "5---3", wantErr: ErrMalformedExpression},
 
+		// Modulo: '%' is contextual — a digit immediately after it makes it
+		// BinaryOp modulo instead of the postfix percent UnaryOp.
+		{name: "modulo of two positive terms", input: "10%9", wantValue: 1},
+		{name: "modulo folds into the running total like other binary ops", input: "8^6*3%9+0", wantValue: 3},
+		{name: "modulo with a negative left operand (Go Mod sign convention)", input: "-10%3", wantValue: -1},
+		{name: "modulo applies to a preceding postfix sqrt's own value", input: "16\\%9", wantValue: 4},
+		{name: "percent still wins when % is not followed by a digit", input: "5%+3", wantValue: 3.05},
+		{name: "modulo by zero rejected", input: "10%0", wantErr: ErrModuloByZero},
+
 		// CALC-08/09: divide-by-zero, negative-sqrt.
 		{name: "divide by zero", input: "5/0", wantErr: ErrDivideByZero},
 		{name: "sqrt of negative single term", input: "-4\\", wantErr: ErrNegativeSqrt},

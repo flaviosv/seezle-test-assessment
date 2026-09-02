@@ -32,7 +32,10 @@ func isAllowedChar(r rune) bool {
 }
 
 // parseExpression parses and evaluates Expression := Term (BinaryOp Term)*
-// strictly left to right, with no operator precedence.
+// strictly left to right, with no operator precedence. BinaryOp is
+// {+,-,*,/,^} plus the contextual case of '%' as modulo — see parseTerm's
+// trailing-op loop for how '%' is disambiguated from the postfix percent
+// UnaryOp.
 func parseExpression(expr string) (float64, error) {
 	result, pos, err := parseTerm(expr, 0)
 	if err != nil {
@@ -66,7 +69,7 @@ func parseExpression(expr string) (float64, error) {
 
 func isBinaryOp(b byte) bool {
 	switch b {
-	case '+', '-', '*', '/', '^':
+	case '+', '-', '*', '/', '^', '%':
 		return true
 	default:
 		return false
@@ -88,6 +91,11 @@ func applyBinaryOp(left float64, op byte, right float64) (float64, error) {
 		return left / right, nil
 	case '^':
 		return math.Pow(left, right), nil
+	case '%':
+		if right == 0 {
+			return 0, ErrModuloByZero
+		}
+		return math.Mod(left, right), nil
 	default:
 		return 0, ErrMalformedExpression
 	}
@@ -130,6 +138,16 @@ func parseTerm(expr string, pos int) (float64, int, error) {
 	}
 
 	for pos < len(expr) && isUnaryOp(expr[pos]) {
+		// '%' is contextual: a digit right after it means the writer started
+		// a new right-hand operand, so it's binary modulo, not postfix
+		// percent — leave it unconsumed for parseExpression's BinaryOp step.
+		// Mirrors '-' overloading sign vs. subtraction by position, but here
+		// the disambiguation needs one byte of lookahead rather than falling
+		// out of the call site alone.
+		if expr[pos] == '%' && pos+1 < len(expr) && isDigit(expr[pos+1]) {
+			break
+		}
+
 		switch expr[pos] {
 		case '%':
 			value /= 100
