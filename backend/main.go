@@ -1,9 +1,101 @@
 package main
 
+import (
+	"context"
+	"errors"
+	"fmt"
+	"log/slog"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"github.com/gin-gonic/gin"
+
+	docs "github.com/flaviosv/seezle-test-assessment/docs"
+	"github.com/flaviosv/seezle-test-assessment/internal/middleware"
+	"github.com/flaviosv/seezle-test-assessment/internal/operations"
+	"github.com/flaviosv/seezle-test-assessment/internal/routes"
+	"github.com/flaviosv/seezle-test-assessment/internal/shared/config"
+	"github.com/flaviosv/seezle-test-assessment/internal/shared/logger"
+)
+
+const (
+	requestTimeout      = 20 * time.Second
+	shutdownGracePeriod = 15 * time.Second
+	readHeaderTimeout   = 5 * time.Second
+	readTimeout         = 20 * time.Second
+	writeTimeout        = 25 * time.Second
+	idleTimeout         = 60 * time.Second
+)
+
+//	@title			Seezle Test Assessment API
+//	@version		1.0
+//	@description	Calculator MVP API — a single stateless endpoint that parses and evaluates a left-to-right arithmetic expression.
+//	@BasePath		/v1
 func main() {
-	// TODO(T7): load config via config.Load()
-	// TODO(T7): initialize logger via logger.Initialize(cfg.LogLevel)
-	// TODO(T7): build gin.New() engine with middleware stack (T2): Recovery, SecurityHeaders, CORS, RequestTimeout, RequestContext
-	// TODO(T7): register routes via routes.Routes(app, app.Group("/v1"), uc, cfg) (T3/T4/T5/T6)
-	// TODO(T7): start http.Server on cfg.APIPort with graceful shutdown on SIGTERM/SIGINT
+	cfg := config.Load()
+	log := logger.Initialize(cfg.LogLevel)
+	gin.SetMode(cfg.GinMode)
+
+	app := gin.New()
+	app.Use(gin.Recovery())
+	app.Use(middleware.SecurityHeaders())
+	app.Use(middleware.CORS())
+	app.Use(middleware.RequestTimeout(requestTimeout))
+	app.Use(middleware.RequestContext(log))
+
+	docs.SwaggerInfo.BasePath = "/v1"
+
+	uc := operations.NewUseCase()
+	routes.Routes(app, app.Group("/v1"), uc, cfg)
+
+	srv := &http.Server{
+		Addr:              ":" + cfg.APIPort,
+		Handler:           app,
+		ReadHeaderTimeout: readHeaderTimeout,
+		ReadTimeout:       readTimeout,
+		WriteTimeout:      writeTimeout,
+		IdleTimeout:       idleTimeout,
+	}
+
+	log.Info("starting server", "app_env", cfg.AppEnv, "port", cfg.APIPort)
+
+	if err := run(srv, log); err != nil {
+		log.Error("server error", "error", err)
+		os.Exit(1)
+	}
+}
+
+// run starts srv and blocks until a shutdown signal arrives, then drains
+// in-flight requests within shutdownGracePeriod.
+func run(srv *http.Server, log *slog.Logger) error {
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
+
+	serveErrCh := make(chan error, 1)
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			serveErrCh <- err
+			return
+		}
+		serveErrCh <- nil
+	}()
+
+	select {
+	case err := <-serveErrCh:
+		return err
+	case sig := <-sigCh:
+		log.Info("shutdown signal received", "signal", sig.String())
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownGracePeriod)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		return fmt.Errorf("graceful shutdown: %w", err)
+	}
+	log.Info("shutdown complete")
+	return nil
 }

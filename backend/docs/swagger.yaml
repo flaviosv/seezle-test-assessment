@@ -1,4 +1,62 @@
+basePath: /v1
+definitions:
+  operations.CalculateRequest:
+    properties:
+      operation:
+        description: |-
+          Operation intentionally has no `binding:"required"` tag: an empty or
+          missing value decodes to "" and is rejected by the parser's own
+          ErrEmptyExpression (T6), which is this service's single source of
+          truth for grammar validity — not a separate bind-level rule.
+        example: 2+2
+        type: string
+    type: object
+  operations.CalculateResponse:
+    properties:
+      operation:
+        example: 2+2
+        type: string
+      result:
+        example: 4
+        type: number
+    type: object
+  response.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
 info:
   contact: {}
-paths: {}
+  description: Calculator MVP API — a single stateless endpoint that parses and evaluates
+    a left-to-right arithmetic expression.
+  title: Seezle Test Assessment API
+  version: "1.0"
+paths:
+  /v1/calculate:
+    post:
+      consumes:
+      - application/json
+      description: Parses and evaluates a left-to-right arithmetic expression (+ -
+        * / ^ \ %), returning the rounded numeric result
+      parameters:
+      - description: Expression to evaluate
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/operations.CalculateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/operations.CalculateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Evaluate a calculator expression
+      tags:
+      - operations
 swagger: "2.0"

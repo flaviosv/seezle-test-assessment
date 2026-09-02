@@ -14,17 +14,91 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {}
+    "paths": {
+        "/v1/calculate": {
+            "post": {
+                "description": "Parses and evaluates a left-to-right arithmetic expression (+ - * / ^ \\ %), returning the rounded numeric result",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "operations"
+                ],
+                "summary": "Evaluate a calculator expression",
+                "parameters": [
+                    {
+                        "description": "Expression to evaluate",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/operations.CalculateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/operations.CalculateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "operations.CalculateRequest": {
+            "type": "object",
+            "properties": {
+                "operation": {
+                    "description": "Operation intentionally has no ` + "`" + `binding:\"required\"` + "`" + ` tag: an empty or\nmissing value decodes to \"\" and is rejected by the parser's own\nErrEmptyExpression (T6), which is this service's single source of\ntruth for grammar validity — not a separate bind-level rule.",
+                    "type": "string",
+                    "example": "2+2"
+                }
+            }
+        },
+        "operations.CalculateResponse": {
+            "type": "object",
+            "properties": {
+                "operation": {
+                    "type": "string",
+                    "example": "2+2"
+                },
+                "result": {
+                    "type": "number",
+                    "example": 4
+                }
+            }
+        },
+        "response.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        }
+    }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
+	Version:          "1.0",
 	Host:             "",
-	BasePath:         "",
+	BasePath:         "/v1",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Seezle Test Assessment API",
+	Description:      "Calculator MVP API — a single stateless endpoint that parses and evaluates a left-to-right arithmetic expression.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
