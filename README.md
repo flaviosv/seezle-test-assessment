@@ -52,6 +52,9 @@ cd backend && go mod download
 
 # Frontend
 cd frontend && npm install
+
+# E2E (optional, only needed to run the Playwright suite)
+cd e2e && npm install && npx playwright install chromium
 ```
 
 ## Quick Start
@@ -84,12 +87,39 @@ cd frontend && npm run build
 
 ## Testing
 
+**Backend** (Go unit + integration — no external dependencies to spin up):
+
 ```bash
-cd backend && go test ./...
-cd frontend && npm run test -- --run
+cd backend
+go test ./...              # run everything
+go test ./... -v           # verbose, one line per case
+go test ./... -cover       # with statement coverage
+go test ./internal/operations/... -run TestEvaluate -v   # a single test
 ```
 
-See [`docs/codebase/COVERAGE.md`](docs/codebase/COVERAGE.md) for the full coverage summary.
+**Frontend** (Vitest + React Testing Library — unit + component):
+
+```bash
+cd frontend
+npm run test -- --run      # run once and exit (CI mode)
+npm run test                # watch mode
+npx vitest run --coverage   # with coverage report
+```
+
+**End-to-end** (Playwright — boots the real frontend dev server and the real backend itself, no
+mocks; see [`e2e/CLAUDE.md`](e2e/CLAUDE.md) for how):
+
+```bash
+cd e2e
+npm install && npx playwright install chromium   # first time only
+npm test                    # run everything headless
+npm run test:ui             # interactive UI mode
+npx playwright test tests/operators.spec.ts   # a single spec file
+npm run report               # open the HTML report from the last run
+```
+
+**Full test coverage summary (case counts, statement/branch %, and documented gaps) lives in
+[`docs/codebase/COVERAGE.md`](docs/codebase/COVERAGE.md).**
 
 ## API
 

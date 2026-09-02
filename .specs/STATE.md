@@ -34,6 +34,29 @@
 - **Date**: 2026-09-02
 - **Status**: active
 
+### AD-005
+- **Decision**: Added an end-to-end test suite (Playwright) under a new top-level `e2e/` package,
+  sibling to `backend/` and `frontend/` — not nested inside `frontend/` — since it drives a real
+  browser against both the real frontend dev server and the real Go backend via Playwright's
+  `webServer` array config, and is cross-cutting rather than frontend-owned. This supersedes
+  spec.md's original OPS-10 "no e2e at this stage" scoping (SEZ-1's seed spec constraint) — the
+  user explicitly requested E2E coverage in SEZ-4.
+- **Reason**: A real-browser suite is the only layer that can catch what unit/component tests
+  (which mock the API client) and backend tests (which never touch a browser) structurally cannot:
+  actual cross-origin CORS behavior, real keyboard-event timing/races, and the two things
+  `docs/codebase/COVERAGE.md` previously listed as manually-verified-only (FE-17 responsive
+  layout). It also gave direct regression coverage for two real production bugs recorded in
+  `docs/PROMPTS.md` (the AC/Escape error-recovery bug, and the `10%9`/`8^6*3%9+0` modulo-parsing
+  bug) — both already fixed and unit-tested, but never exercised through the actual UI before.
+- **Trade-off**: A second `npm install` surface and a slower test suite (real browser + two booted
+  servers) than unit/integration tests; deliberately scoped narrow (35 cases across 6 spec files)
+  to avoid re-asserting grammar edge cases `parser_test.go` already covers exhaustively.
+- **Scope**: `e2e/` only; no change to `backend/` or `frontend/`'s existing unit/integration test
+  layers beyond closing two real (not padding) coverage gaps found by re-reviewing actual uncovered
+  lines — see `docs/codebase/COVERAGE.md`.
+- **Date**: 2026-09-02
+- **Status**: active
+
 ## Handoff
 
 (none yet — first feature, still in Design phase)

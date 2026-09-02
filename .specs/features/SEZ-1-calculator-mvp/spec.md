@@ -32,7 +32,6 @@ Explicitly excluded. Documented to prevent scope creep.
 | Additional calculator operations beyond the seven listed (`+ - * / ^ \ %`) | Not requested; seed spec fixes this operation set |
 | Auth / user accounts | Seed spec: "No auth required" |
 | Design-sync (ongoing Claude Design system maintenance after this feature ships) | Grilling explicitly designates this a post-delivery follow-up owned by the user, not part of this Specify→Execute cycle |
-| E2E tests | Seed spec: "no e2e at this stage" |
 | History / memory of past calculations | Not requested; only the current expression and its immediately-preceding result are ever live |
 | Parentheses / operator-precedence changes | Seed spec: strict left-to-right evaluation only |
 | Persistence (database / cache) | Seed spec: "no database, no cache — this is a simple stateless service" |
@@ -301,7 +300,7 @@ Cross-cutting deliverables the assessment requires regardless of user-story prio
 | OPS-07 | Dockerfile(s) plus `docker-compose.yml` run frontend (`:8080`) and backend (`:8090`) together. |
 | OPS-08 | `docs/PROMPTS.md` records every user prompt given in this session verbatim, as a numbered list with no heading. |
 | OPS-09 | The project's root `CLAUDE.md` carries a note instructing future sessions to keep `docs/PROMPTS.md` updated with every user prompt, and to re-read that instruction each session. |
-| OPS-10 | Unit and integration tests exist for both layers (no e2e); backend tests follow `applyr`'s conventions adapted for a slice with no persistence layer (see Assumptions); frontend tests use Vitest + React Testing Library. |
+| OPS-10 | Unit and integration tests exist for both layers; backend tests follow `applyr`'s conventions adapted for a slice with no persistence layer (see Assumptions); frontend tests use Vitest + React Testing Library. An end-to-end suite (Playwright, `e2e/`) was added in SEZ-4, superseding this requirement's original "no e2e" scoping — see `.specs/STATE.md` AD-005. |
 | OPS-11 | The frontend UI is built using the `/design` skill; its resulting Claude Design system is named `seezle-technical-assesment` and linked to this project (ongoing maintenance via design-sync is an explicit post-delivery follow-up, not a completion criterion here). |
 
 ---
