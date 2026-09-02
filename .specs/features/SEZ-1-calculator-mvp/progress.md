@@ -2,8 +2,8 @@
 
 ## Run State
 
-- status: in-progress
-- last_completed_step: 15
+- status: complete
+- last_completed_step: 16
 - worktree_path: .claude/worktrees/SEZ-1-calculator-mvp
 - branch: feature/SEZ-1_calculator-mvp
 - base_branch: main
@@ -38,4 +38,5 @@
 - Step 13 (fix-review, subagent): done — 16 fixed, 1 answered-only, 0 rejected, 21 blocked/deferred (mostly test-coverage additions + complex parser/component refactors + design-system creation, correctly left for a human/dedicated follow-up); 6 commits pushed (1bbaff2..e440252). Orchestrator also fixed a race: a fix-review child transiently reverted an in-flight docs/PROMPTS.md edit via a shared-worktree git operation; reapplied cleanly after fix-review fully completed (944d05f), no fix-review commit actually touched that file.
 - Step 14 (architecture-evaluate, Incremental): done — created 8 new docs/codebase/ files (PROJECT/STACK/STRUCTURE/ARCHITECTURE/CONVENTIONS/INTEGRATIONS/TESTING/CONCERNS), left uncommitted for manual review per SKILL.md rule (every touched docs/codebase file was new — DESIGN.md/COVERAGE.md left as-is, PIPELINE.md correctly omitted, no CI/CD exists). Separately committed (580a127) the run's 5 inline-godoc-comment fixes to backend source files (verified `go build ./...` clean).
 - Step 15 (design-sync handoff): no .design-sync/config.json at worktree root (design-sync has never run in this repo) — formal auto-detect gate is false, skipped per SKILL.md. Called out anyway, prominently, in the final report: the user's own spec explicitly required a named/linked Claude Design system and Execute's /design run produced a mockup specifically to seed one, so "run /design-sync yourself" is a real required follow-up, not fabricated busywork.
+- Step 16 (merge check + mark ready): done — merge_check: clean (MERGEABLE/CLEAN on first re-check after one wait); ready: done
 - Step 10 (execute): done — Verifier: PASS (iteration 2, after fixing 3 gaps found in iteration 1). First Execute dispatch was cut off mid-run by a transient network error (ENOTFOUND) after 19 commits landed cleanly; resumed with a second dispatch that verified the pre-existing commits actually built/tested fine (reported backend compile diagnostics were stale), finished remaining Phase 4 tests, all of Phase 5 delivery, ran /design (2-artboard mockup: https://claude.ai/code/artifact/1d347362-1ca1-4bd9-9428-e60e89de3f41), applied a live user layout correction (+ to the right of =), and closed the Verifier's 3 gaps. 172/172 tests passing (89 backend, 83 frontend). docs/PROMPTS.md written directly by the orchestrator (deferred from Execute by design), committed separately (87fed38). Note: mid-run attribution-trailer guidance changed twice this session (added, then removed) — commits ea617a2 and earlier carry a Co-Authored-By/Claude-Session trailer that was in effect at the time; commits from 8f7eee2 onward do not, per the later "no attribution" instruction. Left as-is, not rewritten.
