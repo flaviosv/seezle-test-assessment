@@ -2,11 +2,14 @@ interface HelpButtonProps {
   onClick: () => void
 }
 
-// SPEC_DEVIATION: placeholder only, to satisfy CalculatorApp.tsx (T15)'s
-// build gate ahead of schedule. Real implementation lands in T17.
 export function HelpButton({ onClick }: HelpButtonProps) {
   return (
-    <button type="button" onClick={onClick}>
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="Keyboard shortcuts help"
+      className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-surface-raised)] text-[var(--color-text-secondary)] transition-colors hover:brightness-110"
+    >
       ?
     </button>
   )
