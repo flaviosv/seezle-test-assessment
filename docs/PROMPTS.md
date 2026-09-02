@@ -228,3 +228,9 @@ Are those math scenarios i'm not convering or some previous decisions we took th
 ```text
 Please add to README.md the ocrrect way to use each operator
 ```
+
+----------------------------------------------------------------------
+
+```text
+I want you to run a new round of review and see if you are missing any tsts coverage in Unit and Integration, and the add coverate to E2E, add this to a feature/SEZ-4_tests_check_e2e, open the PR to main when you are done
+```

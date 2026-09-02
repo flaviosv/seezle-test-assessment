@@ -3,6 +3,7 @@ package operations
 import (
 	"errors"
 	"math"
+	"strings"
 	"testing"
 )
 
@@ -59,6 +60,7 @@ func TestEvaluate(t *testing.T) {
 
 		// CALC-11: non-finite overflow.
 		{name: "extreme exponentiation overflows to non-finite", input: "9999999999^9999999999", wantErr: ErrNonFiniteResult},
+		{name: "a term literal itself too large for float64 is rejected as malformed", input: strings.Repeat("9", 400), wantErr: ErrMalformedExpression},
 
 		// API-03: empty, invalid character.
 		{name: "empty expression rejected", input: "", wantErr: ErrEmptyExpression},

@@ -28,6 +28,7 @@ func TestFormatResult_Rounding(t *testing.T) {
 		{name: "trailing zero trimmed for whole number (1.0 -> 1)", value: 1.0, want: "1"},
 		{name: "trailing zero trimmed for decimal (0.50 -> 0.5)", value: 0.50, want: "0.5"},
 		{name: "negative value preserves sign", value: -3.0, want: "-3"},
+		{name: "exact zero skips the log10-based rounding formula", value: 0, want: "0"},
 	}
 
 	for _, tt := range tests {

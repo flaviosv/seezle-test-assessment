@@ -52,6 +52,9 @@ cd backend && go mod download
 
 # Frontend
 cd frontend && npm install
+
+# E2E (optional, only needed to run the Playwright suite)
+cd e2e && npm install && npx playwright install chromium
 ```
 
 ## Quick Start
@@ -85,11 +88,16 @@ cd frontend && npm run build
 ## Testing
 
 ```bash
+# Unit + integration
 cd backend && go test ./...
 cd frontend && npm run test -- --run
+
+# End-to-end (Playwright; boots both services itself)
+cd e2e && npm install && npm test
 ```
 
-See [`docs/codebase/COVERAGE.md`](docs/codebase/COVERAGE.md) for the full coverage summary.
+**Full test coverage summary (case counts, statement/branch %, and documented gaps) lives in
+[`docs/codebase/COVERAGE.md`](docs/codebase/COVERAGE.md).**
 
 ## API
 
