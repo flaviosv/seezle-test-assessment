@@ -94,9 +94,9 @@ actions the on-screen buttons use, so button and keyboard input can never drift 
   echoed operation small above a large result, backspace/AC/postfix ops in a top utility row, digit
   grid below, `±`/`.` grouped with `0` at the bottom, help ("?") pinned top-right.
 - Design tokens live in `frontend/src/styles/tokens.css` as CSS custom properties (`--color-bg`,
-  `--color-surface`, `--color-surface-raised`, `--color-accent`, `--color-danger`, `--color-warning`,
-  `--color-success`, `--color-text-primary`, `--color-text-secondary`) — the same tokens the
-  components consume via Tailwind's `bg-[var(--color-*)]` utilities.
+  `--color-surface`, `--color-surface-raised`, `--color-accent`, `--color-danger`,
+  `--color-text-primary`, `--color-text-secondary`) — the same tokens the components consume via
+  Tailwind's `bg-[var(--color-*)]` utilities.
 
 ## Claude Design System (Manual Follow-up)
 
