@@ -166,7 +166,7 @@ Every user prompt given in this session is recorded verbatim in [`docs/PROMPTS.m
 
 ## Postman Collection
 
-`Seezle Test Assessment.postman_collection.json` (repo root) — a runnable collection covering the
+[`docs/Seezle Test Assessment.postman_collection.json`](docs/Seezle%20Test%20Assessment.postman_collection.json) — a runnable collection covering the
 happy path, all seven operators, chained postfix operators, negative-number handling, and every
 documented error case.
 

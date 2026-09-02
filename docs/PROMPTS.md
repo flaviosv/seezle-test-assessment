@@ -234,3 +234,9 @@ Please add to README.md the ocrrect way to use each operator
 ```text
 I want you to run a new round of review and see if you are missing any tsts coverage in Unit and Integration, and the add coverate to E2E, add this to a feature/SEZ-4_tests_check_e2e, open the PR to main when you are done
 ```
+
+----------------------------------------------------------------------
+
+```text
+Create a Makefile simple where you can run the tests suite instead of running by folder you know? just for evaluation purpose, you can push direct to main, update README.md when it's done
+```
