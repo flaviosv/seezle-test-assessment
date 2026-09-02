@@ -1,1 +1,22 @@
-/* Design tokens: populated in T18 (see design.md's Design Tokens section). */
+/* Design tokens (design.md's Design Tokens section). Starting proposal —
+   exact final values owned by the /design skill's Claude Design system
+   (seezle-technical-assesment, OPS-11). */
+:root {
+  --color-bg: #0b0e14;
+  --color-surface: #1a1f2e;
+  --color-surface-raised: #232a3d;
+  --color-accent: #3b82f6;
+  --color-danger: #ef4444;
+  --color-warning: #f59e0b;
+  --color-success: #22c55e;
+  --color-text-primary: #f5f7fa;
+  --color-text-secondary: #8b93a7;
+
+  --font-size-body: 1rem;
+  --font-size-display: 2.5rem;
+
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+}
