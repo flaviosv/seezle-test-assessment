@@ -26,13 +26,15 @@ func newTestRouter(t *testing.T) *gin.Engine {
 
 	app := gin.New()
 	app.Use(gin.Recovery())
-	app.Use(middleware.SecurityHeaders())
 	app.Use(middleware.CORS())
 	app.Use(middleware.RequestTimeout(20 * time.Second))
 	app.Use(middleware.RequestContext(log))
 
+	v1 := app.Group("/v1")
+	v1.Use(middleware.SecurityHeaders())
+
 	uc := operations.NewUseCase()
-	Routes(app, app.Group("/v1"), uc)
+	Routes(app, v1, uc)
 
 	return app
 }

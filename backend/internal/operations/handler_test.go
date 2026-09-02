@@ -28,11 +28,12 @@ func newTestRouter(t *testing.T, h *Handler) *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
 	r.Use(gin.Recovery())
-	r.Use(middleware.SecurityHeaders())
 	r.Use(middleware.CORS())
 	r.Use(middleware.RequestTimeout(20 * time.Second))
 	r.Use(middleware.RequestContext(slog.New(slog.NewTextHandler(httptest.NewRecorder(), nil))))
-	r.POST("/v1/calculate", h.Calculate)
+	v1 := r.Group("/v1")
+	v1.Use(middleware.SecurityHeaders())
+	v1.POST("/calculate", h.Calculate)
 	return r
 }
 

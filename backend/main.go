@@ -41,15 +41,17 @@ func main() {
 
 	app := gin.New()
 	app.Use(gin.Recovery())
-	app.Use(middleware.SecurityHeaders())
 	app.Use(middleware.CORS())
 	app.Use(middleware.RequestTimeout(requestTimeout))
 	app.Use(middleware.RequestContext(log))
 
 	docs.SwaggerInfo.BasePath = "/v1"
 
+	v1 := app.Group("/v1")
+	v1.Use(middleware.SecurityHeaders())
+
 	uc := operations.NewUseCase()
-	routes.Routes(app, app.Group("/v1"), uc)
+	routes.Routes(app, v1, uc)
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.APIPort,
