@@ -199,3 +199,13 @@ thecode snippet i'm talking about is
 ​```text
 ​```
 ```
+
+----------------------------------------------------------------------
+
+```text
+The projecet seems to be working fine, however i'm getting CORS issue as the print below
+
+[Attached screenshot: Screenshot 2026-09-02 at 17.54.09.png]
+
+You can either use Claude in Chrome to debug or check yourself what is going on. Once it's fixed, make sure you add tests to cover this scenario
+```
