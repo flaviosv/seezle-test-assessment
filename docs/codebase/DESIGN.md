@@ -109,6 +109,10 @@ hand-written React UI — it is not a replacement for the component code above.
 follow-up the user performs themselves** — this session does not create or name a design system on
 the user's behalf.
 
+Mockup canvas published this session (main keypad view + keyboard-shortcuts modal, static reference,
+tokens/layout matched against the real `tokens.css` and `ButtonGrid.tsx`/`HelpModal.tsx`):
+`https://claude.ai/code/artifact/1d347362-1ca1-4bd9-9428-e60e89de3f41`
+
 ## Scope Note
 
 Exact visual details (pixel-level spacing, final shadow/blur values) are refined visually rather than
