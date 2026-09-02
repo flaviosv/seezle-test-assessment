@@ -88,6 +88,7 @@ specification, design, task breakdown, commit log, and validation report all liv
 - `spec.md` — full requirements and acceptance criteria
 - `design.md` — architecture and component design
 - `tasks.md` — atomic task breakdown
+- `commits.md` — log of commits, one per task
 - `validation.md` — verification report from the independent Verifier
 
 Every user prompt given in this session is recorded verbatim in [`docs/PROMPTS.md`](docs/PROMPTS.md).
