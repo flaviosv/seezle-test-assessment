@@ -41,7 +41,15 @@ function currentOperandStart(expr: string): number {
       expectStart = true
     }
   }
-  return start
+  // SPEC_DEVIATION: when a BinaryOp is the last character (no operand typed
+  // yet for the new operand), expectStart is left true with no further
+  // iteration to advance `start` — without this, the stale previous
+  // operand's start position leaks through, breaking FE-13's auto-zero rule
+  // for a fresh operand (e.g. "5+" then "." must become "5+0.", not "5+.").
+  // Reason: caught by a spec-derived useCalculator.test.ts case (T19); fixed
+  // here because the bug blocked writing a spec-correct test, not because it
+  // was in scope of T19's own tasks.md entry.
+  return expectStart ? expr.length : start
 }
 
 function appendDecimal(expr: string): string {
