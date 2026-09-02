@@ -87,13 +87,35 @@ cd frontend && npm run build
 
 ## Testing
 
-```bash
-# Unit + integration
-cd backend && go test ./...
-cd frontend && npm run test -- --run
+**Backend** (Go unit + integration — no external dependencies to spin up):
 
-# End-to-end (Playwright; boots both services itself)
-cd e2e && npm install && npm test
+```bash
+cd backend
+go test ./...              # run everything
+go test ./... -v           # verbose, one line per case
+go test ./... -cover       # with statement coverage
+go test ./internal/operations/... -run TestEvaluate -v   # a single test
+```
+
+**Frontend** (Vitest + React Testing Library — unit + component):
+
+```bash
+cd frontend
+npm run test -- --run      # run once and exit (CI mode)
+npm run test                # watch mode
+npx vitest run --coverage   # with coverage report
+```
+
+**End-to-end** (Playwright — boots the real frontend dev server and the real backend itself, no
+mocks; see [`e2e/CLAUDE.md`](e2e/CLAUDE.md) for how):
+
+```bash
+cd e2e
+npm install && npx playwright install chromium   # first time only
+npm test                    # run everything headless
+npm run test:ui             # interactive UI mode
+npx playwright test tests/operators.spec.ts   # a single spec file
+npm run report               # open the HTML report from the last run
 ```
 
 **Full test coverage summary (case counts, statement/branch %, and documented gaps) lives in
