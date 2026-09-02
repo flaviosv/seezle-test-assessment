@@ -209,3 +209,22 @@ The projecet seems to be working fine, however i'm getting CORS issue as the pri
 
 You can either use Claude in Chrome to debug or check yourself what is going on. Once it's fixed, make sure you add tests to cover this scenario
 ```
+
+----------------------------------------------------------------------
+
+```text
+There are some pending errors happening
+
+1. When an error happen, it shows correctly the Error in the numbers bar, however i need to manually press AC to start using it again, the esc keyboard button must be the shortcut for the AC.
+2. \2 is presenting errors, so your tests coverage is not seeing this, fix and add the tests, it should be swaure of 2 right?
+3. 8^6*3%9+0 is also presenting errors, why?
+4. 10%9 also presenting errors.
+
+Are those math scenarios i'm not convering or some previous decisions we took that are driving to this scenarios ?
+```
+
+----------------------------------------------------------------------
+
+```text
+Please add to README.md the ocrrect way to use each operator
+```

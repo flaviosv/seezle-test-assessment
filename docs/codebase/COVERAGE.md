@@ -11,12 +11,12 @@ cd frontend && npx vitest run --coverage
 
 | Package | Test file | Type | Cases | Statement coverage |
 | ------- | --------- | ---- | ----- | ------------------- |
-| `internal/operations` (parser) | `parser_test.go` | unit | 43 | — |
-| `internal/operations` (usecase) | `usecase_test.go` | unit | 22 | — |
-| `internal/operations` (handler) | `handler_test.go` | integration (`httptest`) | 14 | — |
-| `internal/operations` (package total) | — | — | **79** | **96.3%** |
+| `internal/operations` (parser) | `parser_test.go` | unit | 48 | — |
+| `internal/operations` (usecase) | `usecase_test.go` | unit | 20 | — |
+| `internal/operations` (handler) | `handler_test.go` | integration (`httptest`) | 13 | — |
+| `internal/operations` (package total) | — | — | **81** | **96.7%** |
 | `internal/routes` | `routes_test.go` | integration (`httptest`) | 10 | **100.0%** |
-| **Total** | | | **89** | |
+| **Total** | | | **91** | |
 
 `main`, `internal/middleware`, `internal/shared/config`, `internal/shared/logger`, and the generated
 `docs` package report 0% statement coverage — by design (Test Coverage Matrix: "Build gate only — no
@@ -29,11 +29,11 @@ domain logic to test independently"). These are exercised indirectly by the inte
 
 | File | Test file | Type | Cases | Statement % | Branch % | Function % |
 | ---- | --------- | ---- | ----- | ------------ | -------- | ----------- |
-| `hooks/useCalculator.ts` | `useCalculator.test.ts` | unit | 49 | 98.93 | 97.82 | 100 |
+| `hooks/useCalculator.ts` | `useCalculator.test.ts` | unit | 51 | 98.98 | 98.03 | 100 |
 | `api/calculate.ts` | `calculate.test.ts` | unit | 11 | 100 | 87.5 | 100 |
 | `components/CalculatorApp.tsx` (+ Display, ButtonGrid, HelpButton) | `CalculatorApp.test.tsx` | component | 15 | — | — | — |
 | `components/HelpModal.tsx` | `HelpModal.test.tsx` | component | 8 | 100 | 83.33 | 100 |
-| **Total** | | | **83** | **90.56 (all files)** | **96 (all files)** | **72.54 (all files)** |
+| **Total** | | | **85** | **90.85 (all files)** | **96.29 (all files)** | **71.15 (all files)** |
 
 Per-file breakdown for the components exercised only through `CalculatorApp.test.tsx`:
 

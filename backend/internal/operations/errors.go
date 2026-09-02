@@ -10,6 +10,7 @@ var (
 	ErrInvalidCharacter    = errors.New("operations: expression contains an invalid character")
 	ErrMalformedExpression = errors.New("operations: expression does not match the grammar")
 	ErrDivideByZero        = errors.New("operations: division by zero")
+	ErrModuloByZero        = errors.New("operations: modulo by zero")
 	ErrNegativeSqrt        = errors.New("operations: square root of a negative number")
 	ErrNonFiniteResult     = errors.New("operations: result is not a finite number")
 )

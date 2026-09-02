@@ -4,7 +4,8 @@
 
 The assessment calls for a full-stack calculator: a React + TypeScript UI backed by a stateless Go + Gin
 microservice, evaluating a left-to-right (no-precedence, no-parentheses) arithmetic grammar that includes
-two postfix unary operators (percentage, square root) and contextual negative-number signs. There is no
+two postfix unary operators (percentage, square root), `%` doing double duty as binary modulo when a
+digit follows it, and contextual negative-number signs. There is no
 existing implementation — this spec defines the whole vertical slice from keystroke/click to API response
 to rendered result, plus the documentation and deployment artifacts the assessment requires as deliverables.
 
@@ -13,7 +14,7 @@ to rendered result, plus the documentation and deployment artifacts the assessme
 - [ ] A user can enter an expression (digits + the seven operations: `+ - * / ^ \ %`) by clicking calculator
       buttons or typing on a keyboard, trigger a single calculation via "=" or Enter, and see the correct
       rounded result — or a clear "Error" state for any invalid/malformed input or math error (division by
-      zero, square root of a negative number).
+      zero, modulo by zero, square root of a negative number).
 - [ ] The backend exposes exactly one endpoint, `POST /v1/calculate`, that parses and evaluates the formal
       grammar below, rejecting anything outside it with `400` and echoing the original operation string
       alongside the numeric result on success.
@@ -154,30 +155,37 @@ or Enter, so I can do everyday left-to-right arithmetic without worrying about o
 4. WHEN the user clicks "=" or presses Enter THEN the system SHALL make exactly one
    `POST /v1/calculate` call with the accumulated expression as `operation`, and SHALL render the
    response (FE-05).
-5. WHEN the user clicks or presses "AC" THEN the system SHALL clear all state — the expression being
-   composed, the echoed operation, and any displayed result/error — back to the initial empty state
-   (FE-06); the "AC" and "=" controls SHALL both be styled red and visually distinct from every other
-   button (FE-07).
+5. WHEN the user clicks "AC" or presses the Escape key (while the help modal is closed) THEN the system
+   SHALL clear all state — the expression being composed, the echoed operation, and any displayed
+   result/error — back to the initial empty state (FE-06); the "AC" and "=" controls SHALL both be
+   styled red and visually distinct from every other button (FE-07).
 6. WHEN the backend returns `200` THEN the system SHALL replace all content in the display's result area
    with the returned `result`, and SHALL show the returned `operation` above it in smaller font (FE-08).
 7. WHEN the backend returns `400` (format error or math error) THEN the system SHALL show "Error" in the
    result area, and SHALL ignore all digit/operator input until "AC" is pressed (FE-09).
 8. WHEN `POST /v1/calculate` receives `{"operation": "<expr>"}` THEN the system SHALL parse `<expr>`
    against the formal grammar `Expression = Term (BinaryOp Term)*`, `Term = ['-'] Digit+ ['.' Digit+]
-   UnaryOp*` (`BinaryOp ∈ {+,-,*,/,^}`, `UnaryOp ∈ {\,%}`, zero-or-more, chained left to right), and
+   UnaryOp*` (`BinaryOp ∈ {+,-,*,/,^,%}`, `UnaryOp ∈ {\,%}`, zero-or-more, chained left to right), and
    SHALL evaluate strictly left to right with no operator precedence and no parentheses (CALC-01,
    CALC-07).
 9. WHEN a `Term` is followed by one or more `%` and/or `\` THEN the system SHALL apply them, in the order
    written, to that `Term`'s own value only — never to any running total from a preceding `BinaryOp`
-   (CALC-02, CALC-03, CALC-04; e.g. `16\%` = `sqrt(16)%` = `4%` = `0.04`).
+   (CALC-02, CALC-03, CALC-04; e.g. `16\%` = `sqrt(16)%` = `4%` = `0.04`) — except per criterion 9a below.
+9a. `%` is overloaded, the same key doing double duty as on a physical calculator: WHEN a digit
+    immediately follows `%` THEN the system SHALL treat it as the `BinaryOp` modulo, folding into the
+    running total like `+ - * / ^` (`10%9` = `1`); WHEN anything else follows (another operator, or end
+    of expression) THEN `%` SHALL remain the postfix percent `UnaryOp` from criterion 9 (`50%` = `0.5`).
+    A `-` right after `%` is not treated as the start of a negative right-hand operand for modulo — it
+    resolves `%` as percent first (CALC-12; e.g. `10%-3` = `0.1 - 3` = `-2.9`, not `10 mod -3`).
 10. WHEN `-` appears as the first character of the whole expression, or immediately follows another
     operator (binary or unary), THEN the system SHALL parse it as a sign starting a negative operand;
     otherwise `-` SHALL be parsed as binary subtraction (CALC-05). WHEN a second consecutive `-` appears
     in operand-start position THEN the system SHALL reject the expression as a `400` format error
     (CALC-06; e.g. `5--3` = `8`, `-5+3` = `-2`, `5---3` → `400`).
-11. WHEN the expression divides by zero, or applies `\` to a negative number, or produces a
-    non-finite (`±Infinity`/`NaN`) value THEN the system SHALL reject with `400 {"error": "<message>"}`,
-    the same status family as format errors (CALC-08, CALC-09, CALC-11).
+11. WHEN the expression divides by zero, applies modulo by zero, applies `\` to a negative number, or
+    produces a non-finite (`±Infinity`/`NaN`) value THEN the system SHALL reject with
+    `400 {"error": "<message>"}`, the same status family as format errors (CALC-08, CALC-09, CALC-11,
+    CALC-13).
 12. WHEN the expression contains any character outside `0-9 . + - * / ^ \ %`, or does not fully match the
     formal grammar (e.g. a trailing operator with no following operand, as in `1+1+`), or the request
     body is malformed/missing the `operation` field THEN the system SHALL reject with
@@ -193,8 +201,9 @@ or Enter, so I can do everyday left-to-right arithmetic without worrying about o
 
 **Independent Test**: With the backend running, click "2", "+", "2", "=" → display shows small "2+2"
 above large "4". Type `16\%` then press Enter → display shows small "16\%" above large "0.04". Type
-`1/0` then "=" → display shows "Error"; only "AC" recovers it. `curl -XPOST localhost:8090/v1/calculate
--d '{"operation":"1+1+"}'` → `400`.
+`10%9` then press Enter → display shows small "10%9" above large "1" (modulo, since a digit follows
+`%`). Type `1/0` then "=" → display shows "Error"; only "AC" or Escape recovers it. `curl -XPOST
+localhost:8090/v1/calculate -d '{"operation":"1+1+"}'` → `400`.
 
 ---
 
@@ -257,6 +266,11 @@ the rest.*
   `UnaryOp` (`\5` or `%5`) THEN the system SHALL reject with `400` (no valid left operand).
 - WHEN the expression ends in a `BinaryOp` with no following `Term` (e.g. `1+1+`) THEN the system SHALL
   reject with `400`.
+- WHEN `%` is immediately followed by a digit THEN the system SHALL parse it as modulo, folding into the
+  running total left to right like any other `BinaryOp` (e.g. `8^6*3%9+0` = `3`, `-10%3` = `-1` per Go's
+  `math.Mod` sign convention) — not as a postfix percent applied only to the `Term` just typed.
+- WHEN the right-hand side of a modulo evaluates to zero (e.g. `10%0`) THEN the system SHALL reject with
+  `400`, the same status family as division by zero.
 - WHEN `\` is applied to a `Term` whose own value is negative (e.g. `-4\`, or `3+-4\` where `Term2` is
   `-4\`) THEN the system SHALL reject with `400` as a math error, regardless of what precedes it in the
   expression (postfix ops bind to their own `Term` only, per CALC-02/03).
@@ -309,6 +323,8 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 | CALC-09 | P1 | Design | In Design |
 | CALC-10 | P1 | Design | In Design |
 | CALC-11 | P1 | Design | In Design |
+| CALC-12 | P1 | Design | In Design |
+| CALC-13 | P1 | Design | In Design |
 | API-01 | P1 | Design | In Design |
 | API-02 | P1 | Design | In Design |
 | API-03 | P1 | Design | In Design |

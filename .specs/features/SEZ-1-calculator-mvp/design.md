@@ -80,9 +80,9 @@ per spec.md's Technical Constraints:
     Design** below. Not split into a sub-package: one slice, one cohesive algorithm, no reuse target
     outside this slice — a nested package would be pure ceremony (Simplicity First).
   - `errors.go` — sentinel errors (`ErrEmptyExpression`, `ErrInvalidCharacter`,
-    `ErrMalformedExpression`, `ErrDivideByZero`, `ErrNegativeSqrt`, `ErrNonFiniteResult`). All map to
-    `400`; kept distinct only so tests can assert *which* rule fired (`errors.Is`), not to drive
-    different HTTP statuses.
+    `ErrMalformedExpression`, `ErrDivideByZero`, `ErrModuloByZero`, `ErrNegativeSqrt`,
+    `ErrNonFiniteResult`). All map to `400`; kept distinct only so tests can assert *which* rule fired
+    (`errors.Is`), not to drive different HTTP statuses.
   - `handler_test.go`, `usecase_test.go`, `parser_test.go` — colocated, table-driven.
 - **Interfaces**:
   - `func NewHandler(uc *UseCase) *Handler`
@@ -147,13 +147,15 @@ frontend/src/
 Expression := Term (BinaryOp Term)*
 Term       := Sign? Digit+ ('.' Digit+)? UnaryOp*
 Sign       := '-'
-BinaryOp   := '+' | '-' | '*' | '/' | '^'
-UnaryOp    := '\' | '%'
+BinaryOp   := '+' | '-' | '*' | '/' | '^' | '%'   (the '%' case only when a Digit follows it)
+UnaryOp    := '\' | '%'                           (the '%' case only when a Digit does NOT follow it)
 Digit      := '0'..'9'
 ```
 
 Evaluation is strictly left to right, no precedence, no parentheses. `UnaryOp`s are postfix and bind
-only to the `Term` they're attached to (never to a running total).
+only to the `Term` they're attached to (never to a running total). `%` is the one symbol in both sets
+— the same key overloaded for percent (postfix) and modulo (binary), disambiguated by whether a digit
+immediately follows it (CALC-12).
 
 ### Algorithm — single-pass, no AST
 
@@ -168,9 +170,12 @@ expression, or immediately after consuming a `BinaryOp`):
 3. If the current char is `.`, consume it and require one-or-more digits after it. Zero digits after
    `.` → `ErrMalformedExpression` (rejects raw `.5` / `5.`).
 4. `strconv.ParseFloat` the consumed literal (sign included) → the `Term`'s numeric value.
-5. While the current char is `\` or `%`, consume it and apply immediately to the `Term`'s own value,
-   in written order: `%` → `value / 100`; `\` → `math.Sqrt(value)`, but first check `value < 0` →
-   `ErrNegativeSqrt`. After each postfix op, check `math.IsInf`/`math.IsNaN` → `ErrNonFiniteResult`.
+5. While the current char is `\` or `%`, consume it and apply immediately to the `Term`'s own value —
+   *except* when the current char is `%` and the very next char is a `Digit`: that `%` is left
+   unconsumed (the loop `break`s) so `parseExpression` picks it up as `BinaryOp` modulo instead
+   (CALC-12). Otherwise, apply in written order: `%` → `value / 100`; `\` → `math.Sqrt(value)`, but
+   first check `value < 0` → `ErrNegativeSqrt`. After each postfix op, check `math.IsInf`/`math.IsNaN`
+   → `ErrNonFiniteResult`.
 6. Return the final value and the new position.
 
 **`parseExpression(expr)`**:
@@ -179,14 +184,17 @@ expression, or immediately after consuming a `BinaryOp`):
 2. Scan once for any rune outside `0-9 . + - * / ^ \ %` (including whitespace) → `ErrInvalidCharacter`
    (a distinct, clearer message than an incidental grammar-mismatch error further down).
 3. Call `parseTerm` at position 0 → first term.
-4. Loop: if the string isn't exhausted, the current char **must** be a `BinaryOp` — anything else
-   (a second postfix char, a stray `.`, end-of-string reached mid-term) → `ErrMalformedExpression`.
-   Consume the `BinaryOp`, then call `parseTerm` again (now at the position right after a
-   `BinaryOp` — exactly the operand-start context `parseTerm` needs to legally consume a `Sign`).
+4. Loop: if the string isn't exhausted, the current char **must** be a `BinaryOp` (`+ - * / ^ %`) —
+   anything else (a second postfix char, a stray `.`, end-of-string reached mid-term) →
+   `ErrMalformedExpression`. Consume the `BinaryOp`, then call `parseTerm` again (now at the position
+   right after a `BinaryOp` — exactly the operand-start context `parseTerm` needs to legally consume a
+   `Sign`).
 5. Collect all term values and the `BinaryOp`s between them.
 6. Fold left to right: `result := terms[0]`; for each `(op, term)` pair, apply `op` to
-   `(result, term)`. `/` with a zero right-hand side → `ErrDivideByZero`. After every fold step,
-   check finiteness → `ErrNonFiniteResult` (catches overflow like `9999999999^9999999999`).
+   `(result, term)`. `/` with a zero right-hand side → `ErrDivideByZero`; `%` (modulo, per step 5's
+   lookahead) with a zero right-hand side → `ErrModuloByZero` (`math.Mod` otherwise, sign of the
+   result follows the left operand — Go's convention). After every fold step, check finiteness →
+   `ErrNonFiniteResult` (catches overflow like `9999999999^9999999999`).
 
 **Why this elegantly satisfies the contextual-sign rule for free:** `parseTerm` is *only ever
 invoked* at the start of the expression or immediately after consuming a `BinaryOp` character — so
@@ -195,6 +203,10 @@ invoked* at the start of the expression or immediately after consuming a `Binary
 then `parseTerm` at the second `-` consumes it as `Sign`, then finds a **third** `-` where a digit is
 required → `ErrMalformedExpression` — no special-case code needed for "double sign," it's a direct
 consequence of `Term`'s `Digit+` requirement.
+
+`%`'s percent-vs-modulo split can't reuse this call-site trick — both readings are legal at the same
+position, so it's the one place in the grammar needing an actual one-byte lookahead (`isDigit` on
+`pos+1`) rather than falling out of *when* the code runs.
 
 ### Worked Examples (from spec.md's edge cases, verified by hand)
 
@@ -214,6 +226,11 @@ consequence of `Term`'s `Digit+` requirement.
 | `5/0` | `ErrDivideByZero` |
 | `-4\` | `ErrNegativeSqrt` (Term's own value is `-4` before the postfix op applies) |
 | `9999999999^9999999999` | `ErrNonFiniteResult` (`math.Pow` overflows to `+Inf`) |
+| `10%9` | digit follows `%` → modulo: `10 mod 9` → `1` |
+| `8^6*3%9+0` | `8^6=262144`, `*3=786432`; `%` here has a digit (`9`) after it → modulo folds into the running total: `786432 mod 9 = 3`; `+0` → `3` |
+| `-10%3` | `math.Mod(-10, 3)` → `-1` (sign follows the left operand, Go's convention) |
+| `10%0` | `ErrModuloByZero` |
+| `10%-3` | no digit follows `%` (it's `-`) → percent wins: `10% = 0.1`, then `- 3` → `-2.9` (not `10 mod -3` — negative right-hand modulo operands aren't supported) |
 
 ### Rounding & Number Formatting (CALC-10, API-01/02)
 
@@ -286,6 +303,7 @@ Assumptions).
 | Character outside `0-9 . + - * / ^ \ %` | `ErrInvalidCharacter` → `400` | Same (FE never sends this itself — only reachable via direct API calls, since FE whitelists at input time) |
 | Any other grammar mismatch (double sign, leading binop, double binop, trailing binop, double decimal, bare `.`) | `ErrMalformedExpression` → `400` | Same |
 | Division by zero | `ErrDivideByZero` → `400` | Same |
+| Modulo by zero | `ErrModuloByZero` → `400` | Same |
 | `\` applied to a negative `Term` value | `ErrNegativeSqrt` → `400` | Same |
 | Non-finite result (overflow, e.g. extreme `^`) | `ErrNonFiniteResult` → `400` | Same |
 | Malformed JSON body / missing or non-string `operation` | Gin `ShouldBindJSON` bind error → `400` | Same |
@@ -328,13 +346,15 @@ stateDiagram-v2
 | `±` | toggle sign on current operand | ignored | ignored |
 | backspace | delete last char | ignored | ignored |
 | `=`/Enter | `calculate()` if non-empty | no-op (nothing to submit) | ignored |
-| AC | reset | reset | reset (only way out) |
+| AC / Escape | reset | reset | reset (only way out) |
 
 **Keyboard mapping** (FE-02/03/04): a single `window.keydown` listener (registered once in
 `useCalculator`, not per-button) filters to `0-9 . + - * / ^ \ % Enter Backspace Escape` and dispatches
 the same actions the buttons use — no separate code path, so button and keyboard behavior can never
-drift. `Escape` closes the help modal if open; otherwise it is captured (whitelisted per FE-04) but
-has no expression-level effect (Escape isn't AC — only "AC" clears, per Assumptions). `-` on the
+drift. `Escape` closes the help modal if open; otherwise it resets the same way "AC" does (revised
+post-launch: an initial Design-phase default of "Escape is whitelisted but inert" left error-shown
+recoverable only by mouse, which UAT flagged as a real gap — `isHelpOpen` is threaded into
+`useCalculator` so Escape can't fire AC underneath an open modal). `-` on the
 keyboard always appends a literal `-` character (same as clicking a `-` button would, if one
 existed) — **there is no keyboard binding for `±`**, per grilling ("no new typed keyboard shortcut is
 introduced").
@@ -432,7 +452,7 @@ reconfiguration need. `frontend/src/api/calculate.ts` reads
 
 | Test file | Type | Covers |
 | --------- | ---- | ------ |
-| `parser_test.go` | unit (table-driven) | CALC-01..11 and every grammar edge case in spec.md's Edge Cases section — one row per input/expected-(value or sentinel-error) pair |
+| `parser_test.go` | unit (table-driven) | CALC-01..13 and every grammar edge case in spec.md's Edge Cases section — one row per input/expected-(value or sentinel-error) pair |
 | `usecase_test.go` | unit | CALC-10, API-01/02 — rounding to 10 sig figs, trailing-zero trim, no-scientific-notation formatting; error pass-through from `parser.go` |
 | `handler_test.go` | integration (`httptest` + real Gin router, no mocks — see spec.md Assumptions "Meaning of integration test") | API-03..06 — full HTTP round trip: valid request → `200` with exact body shape; malformed JSON / missing `operation` / non-string `operation` → `400`; no-credentials request still processed (API-06) |
 | `routes_test.go` | integration | API-07 — `GET /swagger/index.html` and `GET /docs` return non-404 |
@@ -462,6 +482,8 @@ is not part of this scope.
 | CALC-05, CALC-06 | `parser.go` — `parseTerm`'s call-site-only `Sign` consumption (see "Why this elegantly satisfies...") |
 | CALC-08, CALC-09, CALC-11 | `parser.go` fold step (`ErrDivideByZero`) and postfix step (`ErrNegativeSqrt`); finiteness check after every op (`ErrNonFiniteResult`) |
 | CALC-10 | `usecase.go` `formatResult` — rounding/trim/no-scientific-notation |
+| CALC-12 | `parser.go` — the `%`-followed-by-digit lookahead inside `parseTerm`'s postfix loop, plus `%` added to `isBinaryOp`/`applyBinaryOp` (modulo) |
+| CALC-13 | `parser.go` `applyBinaryOp`'s `%` case (`ErrModuloByZero`) |
 | API-01, API-02 | Handler success response shape (API Contract) |
 | API-03, API-04, API-05 | `parser.go` whitelist scan + grammar errors; `handler.go` JSON-bind errors |
 | API-06 | No auth middleware anywhere in `main.go`/`routes.go` |

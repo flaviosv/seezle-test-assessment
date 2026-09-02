@@ -164,6 +164,7 @@ func TestUseCase_Calculate_ErrorPassthrough(t *testing.T) {
 		{name: "invalid character passes through unchanged", operation: "2+a", wantErr: ErrInvalidCharacter},
 		{name: "malformed expression passes through unchanged", operation: "5+", wantErr: ErrMalformedExpression},
 		{name: "divide by zero passes through unchanged", operation: "5/0", wantErr: ErrDivideByZero},
+		{name: "modulo by zero passes through unchanged", operation: "5%0", wantErr: ErrModuloByZero},
 		{name: "negative sqrt passes through unchanged", operation: "-4\\", wantErr: ErrNegativeSqrt},
 		{name: "non-finite result passes through unchanged", operation: "9999999999^9999999999", wantErr: ErrNonFiniteResult},
 	}
