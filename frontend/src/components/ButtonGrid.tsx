@@ -63,8 +63,8 @@ export function ButtonGrid({
 
     { key: 'equals', label: '=', onClick: onSubmit, className: DANGER_CLASS },
     { key: 'spacer', label: '', onClick: () => {}, className: 'invisible' },
-    { key: 'add', label: '+', onClick: () => onInputChar('+'), className: OPERATOR_CLASS },
     { key: 'spacer-2', label: '', onClick: () => {}, className: 'invisible' },
+    { key: 'add', label: '+', onClick: () => onInputChar('+'), className: OPERATOR_CLASS },
   ]
 
   return (
