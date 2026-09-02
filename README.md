@@ -87,6 +87,17 @@ cd frontend && npm run build
 
 ## Testing
 
+Run everything (backend, frontend, e2e) with a single command via the root `Makefile`:
+
+```bash
+make test            # all three suites, in order
+make test-backend    # Go unit + integration only
+make test-frontend   # Vitest unit + component only
+make test-e2e        # Playwright end-to-end only
+```
+
+Or run each layer directly:
+
 **Backend** (Go unit + integration — no external dependencies to spin up):
 
 ```bash
