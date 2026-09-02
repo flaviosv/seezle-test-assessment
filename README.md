@@ -5,8 +5,29 @@ Go + Gin JSON API (`:8090`), which owns the entire grammar — parsing, evaluati
 returns the result. There is no database, cache, or auth anywhere in the system; every request is an
 independent, side-effect-free computation.
 
-Supported operators (left-to-right, no precedence, no parentheses): `+ - * / ^` (binary) and `\ %`
-(postfix, bind to their own term only — square root and percent).
+Expressions evaluate strictly left-to-right — no operator precedence, no parentheses. There are two
+kinds of operator:
+
+- **Binary** (`+ - * / ^`): sit between two numbers, e.g. `2+2`.
+- **Postfix unary** (`\ %`): come *after* the number they apply to, and bind only to that number —
+  never to a running total from an earlier binary operator. They chain in the order written, e.g.
+  `16\%` = √16 (`4`), then `%` (`0.04`).
+
+| Operator | Symbol | Usage | Example | Result |
+| --- | --- | --- | --- | --- |
+| Addition | `+` | `a+b` | `2+2` | `4` |
+| Division | `/` | `a/b` (`b ≠ 0`) | `6/3` | `2` |
+| Exponentiation | `^` | `a^b` | `2^3` | `8` |
+| Multiplication | `*` | `a*b` | `2*3` | `6` |
+| Percent | `%` | `a%` — postfix, divides `a` by 100 | `50%` | `0.5` |
+| Square Root | `\` | `a\` — postfix, **after** the digits, never before | `9\` | `3` |
+| Subtraction | `-` | `a-b`; also a sign prefix on a negative number (start of expression, or right after another operator) | `5-3` / `-5+3` | `2` / `-2` |
+
+Two common mistakes:
+
+- `\9` is invalid — square root is postfix only, so it's `9\`, not `\9`.
+- `%` is percent, not modulo — there is no modulo operator. `10%9` is invalid: it parses as `10%`
+  (`0.1`) followed by a stray `9` with no operator before it.
 
 ## Repository
 
