@@ -1,5 +1,16 @@
+import { useState } from 'react'
+import { CalculatorApp } from './components/CalculatorApp'
+import { HelpModal } from './components/HelpModal'
+
 function App() {
-  return <div />
+  const [isHelpOpen, setHelpOpen] = useState(false)
+
+  return (
+    <>
+      <CalculatorApp onHelpClick={() => setHelpOpen(true)} />
+      <HelpModal isOpen={isHelpOpen} onClose={() => setHelpOpen(false)} />
+    </>
+  )
 }
 
 export default App
